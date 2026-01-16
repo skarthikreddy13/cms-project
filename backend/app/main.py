@@ -34,7 +34,10 @@ app = FastAPI(title="CMS API", version="1.0.0")
 # Enable CORS so frontend can call API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://cms-project-sigma.vercel.app",
+        "http://localhost:3000",  # optional
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
