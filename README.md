@@ -430,10 +430,9 @@ docker compose up --build
 
 ## 🔗 Deployed URLs (Update after deployment)
 
-**Frontend**: https://your-frontend.vercel.app
-**API**: https://your-backend.railway.app
-**API Docs**: https://your-backend.railway.app/docs
-**Health**: https://your-backend.railway.app/health
+**Frontend**: https://cms-project-sigma.vercel.app/
+**API**: [https://your-backend.railway.app](https://cms-backend-production-e076.up.railway.app)
+**API Docs**: [https://your-backend.railway.app/docs](https://cms-backend-production-e076.up.railway.app/docs)
 
 ## 📞 Support
 
