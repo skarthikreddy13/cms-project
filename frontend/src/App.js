@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 function App() {
   const [user, setUser] = useState(null);
@@ -68,7 +69,7 @@ function App() {
       ...(body && { body: JSON.stringify(body) })
     };
 
-    const response = await fetch('http://localhost:8000' + url, options);
+    const response = await fetch(API_BASE_URL + url, options);
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.detail || `HTTP ${response.status}`);
