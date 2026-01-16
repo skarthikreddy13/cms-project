@@ -1,13 +1,12 @@
-# CMS Project - Admin CMS + Public Catalog API + Scheduled Publishing
+# CMS Project - Full-Featured Content Management System
 
-A full-stack Content Management System with admin interface, public API, and automated lesson publishing.
+A complete full-stack CMS with admin dashboard, program/topic/lesson management, scheduled publishing, and role-based access control.
 
 ## 🏗️ Architecture Overview
-
 ```
 ┌─────────────┐      ┌──────────────┐      ┌────────────┐
 │  React Web  │─────▶│  FastAPI API │─────▶│ PostgreSQL │
-│   (Port 3000)│      │  (Port 8000) │      │ (Port 5432)│
+│   (Port 3000)│      │  (Port 8000) │      │ (Port 5433)│
 └─────────────┘      └──────────────┘      └────────────┘
                             │
                             ▼
@@ -18,430 +17,507 @@ A full-stack Content Management System with admin interface, public API, and aut
 ```
 
 ### Components
-- **Frontend**: React SPA with authentication and CRUD operations
-- **Backend**: FastAPI REST API with role-based access control
+- **Frontend**: React SPA with full CRUD operations and modal-based UI
+- **Backend**: FastAPI REST API with JWT authentication
 - **Database**: PostgreSQL with SQLAlchemy ORM
-- **Worker**: Python background job for scheduled publishing
+- **Worker**: Background job for automated lesson publishing (runs every 60 seconds)
 
 ## 📦 Project Structure
-
 ```
 cms-project/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI application
+│   │   ├── main.py              # FastAPI app (800+ lines)
 │   │   ├── models/
 │   │   │   └── models.py        # SQLAlchemy models
-│   │   ├── schemas/
-│   │   │   └── schemas.py       # Pydantic schemas
 │   │   ├── core/
-│   │   │   └── security.py      # Auth & security
+│   │   │   └── security.py      # JWT auth & password hashing
 │   │   └── db/
 │   │       └── database.py      # Database connection
-│   ├── worker.py                # Publishing worker
+│   ├── worker.py                # Scheduled publishing worker
 │   ├── seed.py                  # Seed data script
 │   ├── requirements.txt
-│   ├── Dockerfile
-│   └── .env.example
+│   └── Dockerfile
 ├── frontend/
 │   ├── src/
-│   │   ├── App.js              # Main React app
-│   │   ├── App.css             # Styling
-│   │   ├── services/
-│   │   │   └── api.js          # API client
+│   │   ├── App.js              # Complete CMS UI (1500+ lines)
 │   │   └── index.js
-│   ├── public/
 │   ├── package.json
 │   ├── Dockerfile
 │   └── nginx.conf
 └── docker-compose.yml
-
 ```
 
 ## 🚀 Local Setup (Docker Compose)
 
 ### Prerequisites
 - Docker Desktop installed
-- Docker Compose installed
-- Ports 3000, 5432, 8000 available
+- Ports 3000, 5433, 8000 available
 
 ### Quick Start
 
-1. **Clone/Extract the project**
-   ```bash
-   cd cms-project
-   ```
-
-2. **Run with Docker Compose**
-   ```bash
+1. **Run with Docker Compose**
+```bash
    docker compose up --build
-   ```
+```
 
-   This single command will:
-   - Start PostgreSQL database
-   - Create database schema
-   - Seed sample data
-   - Start FastAPI backend (http://localhost:8000)
-   - Start Worker for scheduled publishing
-   - Start React frontend (http://localhost:3000)
+   This single command:
+   - ✅ Starts PostgreSQL (port 5433)
+   - ✅ Creates all tables
+   - ✅ Seeds sample data (3 users, 3 topics, 2 programs, 6 lessons)
+   - ✅ Starts FastAPI backend (http://localhost:8000)
+   - ✅ Starts publishing worker
+   - ✅ Starts React frontend (http://localhost:3000)
 
-3. **Access the Application**
-   - Frontend: http://localhost:3000
-   - API Docs: http://localhost:8000/docs
-   - Health Check: http://localhost:8000/health
+2. **Access the Application**
+   - **CMS Dashboard**: http://localhost:3000
+   - **API Docs**: http://localhost:8000/docs
+   - **Health Check**: http://localhost:8000/health
 
 ### Demo Credentials
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@example.com | admin123 |
-| Editor | editor@example.com | editor123 |
-| Viewer | viewer@example.com | viewer123 |
+| Role | Email | Password | Permissions |
+|------|-------|----------|-------------|
+| Admin | admin@example.com | admin123 | Full access + user management |
+| Editor | editor@example.com | editor123 | Create/edit/publish content |
+| Viewer | viewer@example.com | viewer123 | Read-only access |
 
-## 🧪 Testing the Demo Flow
+## 🎯 Features Overview
 
-### 1. Login as Editor
-- Go to http://localhost:3000
-- Login with: `editor@example.com` / `editor123`
+### ✅ Dashboard
+- Real-time statistics (total programs, lessons, users)
+- Recent activity feed
+- Quick navigation
 
-### 2. View Programs
-- You'll see 2 programs already created
-- "Foundation Mathematics" (Telugu + English)
-- "Science Fundamentals" (Hindi)
+### ✅ Program Management
+- Create/Edit/Delete programs
+- Multi-language support (EN, TE, HI, TA)
+- Topic assignment
+- Status management (draft/published/archived)
 
-### 3. Create/Edit a Lesson
-- Click on "Foundation Mathematics"
-- Click on "Term 1: Basic Algebra"
-- You'll see 3 lessons with different statuses
+### ✅ Topic Management
+- Create/Edit/Delete topics
+- Topic-to-program relationships
 
-### 4. Schedule a Lesson
-- The seed data already has a lesson "Understanding Addition" scheduled to publish in 2 minutes
-- Click on this lesson to view details
-- You'll see "Scheduled for: [timestamp]"
+### ✅ Term Management
+- Create terms within programs
+- Sequential numbering
+- Title customization
 
-### 5. Wait for Worker to Publish
-- The worker runs every 60 seconds
-- Wait 2-3 minutes
-- Refresh the lesson page
-- Status will change from "scheduled" to "published"
-- "Published at" timestamp will appear
+### ✅ Lesson Management
+- Create/Edit lessons with:
+  - Title, content type (video/article)
+  - Duration (for videos)
+  - Multi-language content URLs
+  - Paid/Free designation
+- Publishing actions:
+  - **Publish Now**: Immediate publishing
+  - **Schedule**: Set future publish time (IST timezone)
+  - **Archive**: Remove from public view
 
-### 6. Verify in Public Catalog
+### ✅ User Management (Admin Only)
+- View all registered users
+- See user roles and status
+- Track join dates
+
+### ✅ Scheduled Publishing
+- Worker checks every 60 seconds
+- Auto-publishes scheduled lessons
+- Auto-publishes parent program when first lesson goes live
+- IST timezone support for scheduling
+
+## 🧪 Testing the Complete Flow
+
+### 1. First Time Setup
+```bash
+# Start everything
+docker compose up --build
+
+# Wait for "Application startup complete"
+```
+
+### 2. Login as Editor
+- Open http://localhost:3000
+- Click "Login" tab
+- Email: `editor@example.com`
+- Password: `editor123`
+
+### 3. Explore Dashboard
+- See 2 programs, 6 lessons, 4 users
+- View recent activity
+
+### 4. Create a New Program
+- Click "📚 Programs" in sidebar
+- Click "+ Add Program" button
+- Fill in:
+  - Title: "Python Basics"
+  - Description: "Learn Python programming"
+  - Language: English (EN)
+  - Topics: Check "Programming"
+- Click "Create Program"
+
+### 5. Add a Term
+- Click on your new program
+- Click "+ Add Term"
+- Term Number: 1
+- Title: "Introduction"
+- Click "Create Term"
+
+### 6. Add a Lesson
+- Click "+ Add Lesson" in your term
+- Fill in:
+  - Lesson Number: 1
+  - Title: "Hello World"
+  - Content Type: Video
+  - Duration: 300 (seconds)
+  - Content Language: English
+  - Content URL: https://example.com/video.mp4
+- Click "Create Lesson"
+
+### 7. Schedule the Lesson
+- Click "⏰ Schedule" button
+- Enter time in IST (e.g., `2026-01-16T20:30`)
+- Click OK
+- See "Scheduled for: 16 Jan 2026, 8:30 PM IST"
+
+### 8. Watch Auto-Publishing
+- Wait 1-2 minutes (worker runs every 60 seconds)
+- Refresh the page
+- Status changes to "Published"
+- See "✅ Published: [IST timestamp]"
+
+### 9. View Public Catalog
 - Open: http://localhost:8000/catalog/programs
-- You'll see only published programs
-- Each program shows only published lessons
-- Try filters: `?language=te` or `?topic=Mathematics`
+- See only published programs with published lessons
 
-### 7. Test Publishing Actions
-- Create a new draft lesson or edit existing one
-- Try different publishing actions:
-  - **Publish Now**: Immediately publishes
-  - **Schedule**: Set a future date/time
-  - **Archive**: Archives the lesson
+### 10. Test Topics
+- Click "🏷️ Topics" in sidebar
+- Click "+ Add Topic"
+- Create a new topic (e.g., "Data Science")
+- Edit or delete existing topics
+
+### 11. Admin Features (Login as Admin)
+- Logout, login as: admin@example.com / admin123
+- Click "👥 Users" tab
+- See all registered users with roles and join dates
+
+### 12. Register New User
+- Logout
+- Click "Sign Up" tab
+- Create your own account
+- New users get "Viewer" role by default
 
 ## 🗄️ Database Schema
 
-### Key Entities
+### Entities & Relationships
+```
+users (authentication)
+  └─ role: admin | editor | viewer
 
-**Program** → **Term** → **Lesson** (Hierarchical structure)
+topics (categories)
+  └─ many-to-many with programs
 
-**Relationships**:
-- Program ↔ Topic (Many-to-Many)
-- Program → ProgramAsset (One-to-Many)
-- Lesson → LessonAsset (One-to-Many)
+programs (main content)
+  ├─ language_primary, languages_available
+  ├─ status: draft | published | archived
+  └─ has many terms
 
-### Database Constraints Implemented
-✅ Unique `(program_id, term_number)`
-✅ Unique `(term_id, lesson_number)`
-✅ Unique `topic.name`
-✅ Scheduled lessons must have `publish_at`
-✅ Published lessons must have `published_at`
-✅ Primary language included in available languages
-✅ Asset uniqueness per language/variant
+program_assets (posters)
+  ├─ variants: portrait, landscape, square, banner
+  └─ per language
 
-### Indexes for Performance
-✅ `lesson(status, publish_at)` - Worker queries
-✅ `lesson(term_id, lesson_number)` - Listing
-✅ `program(status, language_primary, published_at)` - Catalog queries
-✅ Asset lookup indexes - Fast asset retrieval
+terms (sections)
+  ├─ term_number (unique per program)
+  └─ has many lessons
+
+lessons (content)
+  ├─ lesson_number (unique per term)
+  ├─ content_type: video | article
+  ├─ multi-language content URLs
+  ├─ status: draft | scheduled | published | archived
+  ├─ publish_at (for scheduled)
+  └─ published_at (for published)
+
+lesson_assets (thumbnails)
+  ├─ variants: portrait, landscape, square, banner
+  └─ per language
+```
+
+### Key Constraints
+- ✅ Unique `(program_id, term_number)`
+- ✅ Unique `(term_id, lesson_number)`
+- ✅ Unique `topic.name`
+- ✅ Scheduled lessons require `publish_at`
+- ✅ Published lessons require `published_at`
+- ✅ Primary language must be in available languages
+
+### Performance Indexes
+- ✅ `lesson(status, publish_at)` - Worker queries
+- ✅ `lesson(term_id, lesson_number)` - Lesson listing
+- ✅ `program(status, language_primary, published_at)` - Catalog
 
 ## 🔐 Authentication & Authorization
 
-### Roles
-- **Admin**: Full access + user management
-- **Editor**: Create/edit/publish/schedule content
-- **Viewer**: Read-only access
+### JWT-based Authentication
+- Tokens stored in localStorage
+- 30-minute expiration
+- Auto-refresh on page load
 
-### Security Features
-- JWT-based authentication
-- Password hashing with bcrypt
-- Role-based endpoint protection
-- Token stored in localStorage
+### Role-Based Access Control
+
+| Feature | Admin | Editor | Viewer |
+|---------|-------|--------|--------|
+| View Dashboard | ✅ | ✅ | ✅ |
+| View Programs/Lessons | ✅ | ✅ | ✅ |
+| Create Programs | ✅ | ✅ | ❌ |
+| Edit Programs | ✅ | ✅ | ❌ |
+| Delete Programs | ✅ | ❌ | ❌ |
+| Create Topics | ✅ | ✅ | ❌ |
+| Delete Topics | ✅ | ❌ | ❌ |
+| Create Terms/Lessons | ✅ | ✅ | ❌ |
+| Publish/Schedule | ✅ | ✅ | ❌ |
+| View Users | ✅ | ❌ | ❌ |
 
 ## 📡 API Endpoints
 
-### Admin API (Requires Auth)
-
-**Auth**
+### Authentication
 - `POST /api/auth/login` - Login
-- `POST /api/auth/register` - Register user
+- `POST /api/auth/register` - Register (default role: viewer)
 - `GET /api/auth/me` - Get current user
 
-**Programs**
-- `GET /api/programs` - List programs (filter by status, language, topic)
+### Programs
+- `GET /api/programs` - List all programs
 - `GET /api/programs/{id}` - Get program details
-- `POST /api/programs` - Create program
-- `PATCH /api/programs/{id}` - Update program
-- `POST /api/programs/{id}/assets` - Add poster
+- `POST /api/programs` - Create program (Admin/Editor)
+- `PUT /api/programs/{id}` - Update program (Admin/Editor)
+- `DELETE /api/programs/{id}` - Delete program (Admin only)
 
-**Terms**
-- `GET /api/programs/{id}/terms` - List terms
-- `POST /api/terms` - Create term
+### Topics
+- `GET /api/topics` - List all topics
+- `POST /api/topics` - Create topic (Admin/Editor)
+- `PUT /api/topics/{id}` - Update topic (Admin/Editor)
+- `DELETE /api/topics/{id}` - Delete topic (Admin only)
 
-**Lessons**
-- `GET /api/terms/{id}/lessons` - List lessons
-- `GET /api/lessons/{id}` - Get lesson details
-- `POST /api/lessons` - Create lesson
-- `PATCH /api/lessons/{id}` - Update lesson
-- `POST /api/lessons/{id}/publish` - Publish/schedule/archive
-- `POST /api/lessons/{id}/assets` - Add thumbnail
+### Terms
+- `GET /api/programs/{id}/terms` - List terms in program
+- `POST /api/programs/{id}/terms` - Create term (Admin/Editor)
 
-**Topics**
-- `GET /api/topics` - List topics
-- `POST /api/topics` - Create topic
+### Lessons
+- `GET /api/terms/{id}/lessons` - List lessons in term
+- `POST /api/terms/{id}/lessons` - Create lesson (Admin/Editor)
+- `POST /api/lessons/{id}/publish` - Publish/Schedule/Archive (Admin/Editor)
+  - Actions: `publish_now`, `schedule`, `archive`
+  - For schedule: provide `publish_at` in ISO format
 
-### Public Catalog API (No Auth)
+### Dashboard
+- `GET /api/dashboard/stats` - Get statistics and recent activity
 
-- `GET /catalog/programs` - List published programs
-  - Query params: `language`, `topic`, `cursor`, `limit`
-  - Returns: Programs with ≥1 published lesson
-  - Pagination: Cursor-based with `next_cursor`
+### Users (Admin only)
+- `GET /api/users` - List all users
 
-- `GET /catalog/programs/{id}` - Get program with published lessons
-  - Includes: Terms + published lessons only
+### Public Catalog (No auth required)
+- `GET /catalog/programs` - Published programs only
+  - Filters: `?language=en&topic=Mathematics`
+  - Pagination: `?cursor=xxx&limit=10`
+- `GET /catalog/programs/{id}` - Program with published lessons only
+- `GET /catalog/lessons/{id}` - Published lesson details
 
-- `GET /catalog/lessons/{id}` - Get published lesson details
-
-### Cache Headers
-All catalog endpoints return:
-```
-Cache-Control: public, max-age=300
-```
+### Health
+- `GET /health` - Check API and database status
 
 ## ⚙️ Worker Implementation
 
-### Publishing Logic
+### Auto-Publishing Logic
 
-**File**: `backend/worker.py`
+**File**: `worker.py`
 
-**Features**:
-- ✅ Runs every 60 seconds
-- ✅ Idempotent (safe to run multiple times)
-- ✅ Concurrency-safe (row-level locking with `skip_locked`)
-- ✅ Transactional (each lesson in own transaction)
-- ✅ Auto-publishes parent program
+**Process**:
+1. Runs every 60 seconds
+2. Finds lessons with `status='scheduled'` and `publish_at <= NOW()`
+3. Locks rows with `FOR UPDATE SKIP LOCKED` (prevents race conditions)
+4. Updates each lesson:
+   - Set `status='published'`
+   - Set `published_at=NOW()`
+5. Auto-publishes parent program if needed:
+   - If program has ≥1 published lesson
+   - And program status is still 'draft'
+   - Set program to 'published'
 
-**Workflow**:
-1. Query scheduled lessons where `publish_at <= now()`
-2. Lock rows with `FOR UPDATE SKIP LOCKED`
-3. Update lesson status to `published`
-4. Set `published_at` timestamp
-5. Check if parent program needs publishing
-6. If program has ≥1 published lesson → publish program
-7. Commit transaction
+**Safety Features**:
+- ✅ Idempotent (safe to rerun)
+- ✅ Concurrency-safe (row-level locks)
+- ✅ Transactional (each lesson in its own transaction)
+- ✅ Structured logging
+
+## 🕐 IST Timezone Support
+
+All times in the UI are displayed in **IST (India Standard Time)**:
+- ✅ Scheduled times show in IST
+- ✅ Published times show in IST
+- ✅ User join dates show in IST
+- ✅ Scheduling prompt suggests IST times
+
+**Format**: `16 Jan 2026, 8:05 PM IST`
+
+## 📊 Seed Data
+
+Automatically created on first run:
+
+**Users**:
+- admin@example.com (Admin)
+- editor@example.com (Editor)
+- viewer@example.com (Viewer)
+
+**Topics**:
+- Mathematics
+- Science
+- Language
+
+**Programs**:
+1. Foundation Mathematics (Telugu + English) - Published
+2. Science Fundamentals (Hindi) - Published
+
+**Lessons**: 6 total
+- 4 Published
+- 1 Scheduled (auto-publishes in 2 minutes)
+- 1 Draft
 
 ## 🐳 Deployment
 
-### Deploying to Production
+### Railway.app (Recommended)
 
-#### Option 1: Railway.app (Recommended - Free Tier)
+**1. Database**:
+- Create PostgreSQL service
+- Copy DATABASE_URL
 
-**1. Deploy Database**
-- Go to [railway.app](https://railway.app)
-- New Project → Deploy PostgreSQL
-- Copy `DATABASE_URL` from Connect tab
-
-**2. Deploy Backend + Worker**
-- In same project, click "New Service"
-- Connect your GitHub repo
-- Select `backend` folder as root
-- Add environment variables:
-  ```
-  DATABASE_URL=<from step 1>
-  SECRET_KEY=<generate strong key>
+**2. Backend**:
+- Create Web Service
+- Root: `backend/`
+- Environment variables:
+```
+  DATABASE_URL=postgresql://...
+  SECRET_KEY=your-secret-key-here
   ALGORITHM=HS256
   ACCESS_TOKEN_EXPIRE_MINUTES=30
-  ```
-- Deploy
-
-**3. Deploy Worker**
-- New Service in same project
-- Connect same repo, select `backend` folder
-- Override start command: `python worker.py`
-- Add same environment variables as backend
-- Deploy
-
-**4. Deploy Frontend**
-- New Service → Connect repo → select `frontend` folder
-- Add environment variable:
-  ```
-  REACT_APP_API_URL=<backend URL from step 2>
-  ```
-- Deploy
-
-**5. Run Seed Data** (One-time)
-- In backend service, go to "Settings" → "Deploy"
-- Run command: `python seed.py`
-
-#### Option 2: Render.com (Alternative)
-
-Similar steps as Railway:
-1. New PostgreSQL database
-2. New Web Service for backend
-3. New Background Worker for worker
-4. New Static Site for frontend
-
-#### Option 3: Vercel (Frontend) + Railway (Backend+DB+Worker)
-
-- Frontend: Deploy to Vercel with `REACT_APP_API_URL`
-- Backend/Worker/DB: Deploy to Railway as above
-
-### Environment Variables
-
-**Backend (.env)**:
-```env
-DATABASE_URL=postgresql://user:password@host:port/dbname
-SECRET_KEY=your-secret-key-min-32-chars
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
-**Frontend**:
-```env
-REACT_APP_API_URL=https://your-backend-url.com
+**3. Worker**:
+- Create Web Service
+- Root: `backend/`
+- Start command: `python worker.py`
+- Same environment variables as backend
+
+**4. Frontend**:
+- Create Web Service
+- Root: `frontend/`
+- Environment variable:
+```
+  REACT_APP_API_URL=https://your-backend.railway.app
 ```
 
-## 📊 Seed Data Details
-
-**Users**: 3 (admin, editor, viewer)
-**Topics**: 3 (Mathematics, Science, Language)
-**Programs**: 2
-- Foundation Mathematics (te, en) - PUBLISHED
-- Science Fundamentals (hi) - PUBLISHED
-**Terms**: 2 (one per program)
-**Lessons**: 6 total
-- 4 Published
-- 1 Scheduled (auto-publishes in 2 min)
-- 1 Draft
-
-**Assets**:
-- Each program: portrait + landscape posters for primary language
-- Each lesson: portrait + landscape thumbnails for primary language
-- Multi-language content URLs for bilingual lessons
-
-## 🧪 Testing Checklist
-
-- [ ] Can login with all 3 roles
-- [ ] Admin can create users
-- [ ] Editor can create/edit programs
-- [ ] Editor can create/edit lessons
-- [ ] Editor can schedule lesson publish
-- [ ] Worker auto-publishes scheduled lesson
-- [ ] Program auto-publishes with first lesson
-- [ ] Viewer has read-only access
-- [ ] Public catalog shows only published content
-- [ ] Catalog filters work (language, topic)
-- [ ] Pagination works
-- [ ] Health endpoint returns DB status
-- [ ] Docker compose up works from scratch
-
-## 📝 Key Features Implemented
-
-### ✅ Core Requirements
-- [x] Full CRUD for Programs, Terms, Lessons
-- [x] Multi-language support
-- [x] Asset management (posters, thumbnails, variants)
-- [x] Publishing workflow (draft → scheduled → published → archived)
-- [x] Scheduled publishing with worker
-- [x] Auto-publish parent program
-- [x] Role-based access control (admin, editor, viewer)
-- [x] Public catalog API with pagination
-- [x] Database constraints and indexes
-- [x] Health check endpoint
-- [x] Docker compose setup
-- [x] Seed data script
-
-### ✅ Validation
-- [x] Primary language in available languages
-- [x] Video must have duration_ms
-- [x] Content URLs must include primary language
-- [x] Scheduled lessons must have publish_at
-- [x] Published lessons have required assets
-
-### ✅ Worker Safety
-- [x] Idempotent (rerun safe)
-- [x] Concurrency-safe (row locks)
-- [x] Transactional
-- [x] Structured logging
+**5. Run Seed** (one-time):
+- In backend service settings
+- Run: `python seed.py`
 
 ## 🛠️ Troubleshooting
 
-**Problem**: Containers won't start
+**Port 5432 already in use**:
 ```bash
-docker compose down -v  # Remove volumes
-docker compose up --build
+# docker-compose.yml already uses port 5433
+# If still issues, stop local PostgreSQL:
+# Mac: brew services stop postgresql
+# Linux: sudo systemctl stop postgresql
+# Windows: services.msc → PostgreSQL → Stop
 ```
 
-**Problem**: Frontend can't connect to API
-- Check REACT_APP_API_URL is set correctly
-- For Docker: should be `http://localhost:8000`
-- For production: should be your deployed backend URL
+**Frontend can't connect to API**:
+- Check browser console for CORS errors
+- Verify REACT_APP_API_URL is set correctly
+- For local: `http://localhost:8000`
+- For production: Your deployed backend URL
 
-**Problem**: Worker not publishing
-- Check worker logs: `docker compose logs worker`
-- Verify lesson has `status='scheduled'` and `publish_at` in past
-- Check lesson has required assets
+**Worker not publishing**:
+```bash
+docker logs cms_worker
+# Check for errors
+# Verify lesson has publish_at in the past
+```
 
-**Problem**: Database connection error
-- Verify DATABASE_URL format: `postgresql://user:pass@host:port/db`
-- Check PostgreSQL is running
-- Test connection: `docker compose exec db psql -U cms_user -d cms_db`
+**IST times not showing**:
+- Clear browser cache
+- Hard refresh (Ctrl+Shift+R)
+- Check browser console for errors
 
-## 📖 Additional Notes
+## 📝 Code Statistics
 
-### Design Decisions
+- **Backend**: ~1,000 lines (main.py, models.py, security.py)
+- **Frontend**: ~1,500 lines (complete CMS UI)
+- **Total**: ~2,500 lines of clean, production-ready code
 
-1. **Normalized Assets**: Using separate tables for better querying and uniqueness constraints
-2. **JSON for URLs**: Content URLs stored as JSON for flexibility
-3. **Cursor Pagination**: Better for large datasets than offset
-4. **Row Locking**: `FOR UPDATE SKIP LOCKED` prevents race conditions
-5. **Single Transaction per Lesson**: Prevents partial failures
+## 🎨 UI Features
 
-### Future Improvements
+### Sidebar Navigation
+- Dashboard
+- Programs
+- Topics
+- Users (Admin only)
+- User profile card with avatar
+- Logout button
 
-- [ ] Add search functionality
-- [ ] Implement file uploads (S3/Cloudinary)
-- [ ] Add email notifications for published lessons
-- [ ] Implement versioning/history
-- [ ] Add analytics dashboard
+### Modal-Based UI
+- All create/edit operations in modals
+- Form validation
+- Success/error notifications
+- Responsive design
+
+### Color-Coded Status Badges
+- 🟢 Published (green)
+- 🟡 Scheduled (yellow)
+- ⚪ Draft (gray)
+- 🔴 Archived (red)
+
+## ✅ All Requirements Met
+
+- [x] Full CRUD for Programs, Topics, Terms, Lessons
+- [x] Multi-language support
+- [x] Publishing workflow (draft → scheduled → published → archived)
+- [x] Scheduled publishing with worker
+- [x] Auto-publish parent program
+- [x] Role-based access control (3 roles)
+- [x] Public catalog API
+- [x] User registration
+- [x] Topic management
+- [x] IST timezone display
+- [x] Dashboard with stats
+- [x] Database constraints & indexes
+- [x] Health check endpoint
+- [x] Docker compose setup
+- [x] Seed data script
+- [x] JWT authentication
+- [x] Password hashing
+- [x] Modals for all forms
+- [x] Responsive UI
+
+## 🚀 Future Enhancements
+
+- [ ] File upload for posters/thumbnails (S3/Cloudinary)
+- [ ] Search functionality
 - [ ] Bulk operations
-- [ ] Advanced filtering
-- [ ] Export functionality
-
-## 🔗 Deployed URLs (Update after deployment)
-
-**Frontend**: https://cms-project-sigma.vercel.app/
-**API**: [https://your-backend.railway.app](https://cms-backend-production-e076.up.railway.app)
-**API Docs**: [https://your-backend.railway.app/docs](https://cms-backend-production-e076.up.railway.app/docs)
+- [ ] Content versioning
+- [ ] Email notifications
+- [ ] Analytics dashboard
+- [ ] Export to CSV/PDF
+- [ ] Dark mode
 
 ## 📞 Support
 
-For issues or questions about this project, please check:
-1. Docker logs: `docker compose logs`
-2. API documentation: `/docs` endpoint
-3. Database connection: `/health` endpoint
+**Deployed URLs**:
+- Frontend: [https://your-app.vercel.app](https://cms-project-sigma.vercel.app/)
+- Backend: [https://your-api.railway.app](https://cms-backend-production-e076.up.railway.app)
+- API Docs: [https://your-api.railway.app/docs](https://cms-backend-production-e076.up.railway.app/docs)
 
 ---
 
-**Built with**: FastAPI, React, PostgreSQL, Docker
+**Built with**: React, FastAPI, PostgreSQL, Docker
+**Author**: Karthik 
 **License**: MIT
